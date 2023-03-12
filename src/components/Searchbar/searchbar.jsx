@@ -10,14 +10,14 @@ export function Searchbar(props){
         <button  className="search-form__submit" type="submit">
             <img src={search} alt="Search icon"/>
         </button>
-    <input
+        <input
         className="search-form__input"
         type="text"
         name="searchQuery"
         autoComplete="off"
         autoFocus
         placeholder="Search images..."
-      />
+         />
     </div>
    
     </form>
