@@ -25,5 +25,6 @@ export class Overlay extends React.Component {
 }
 Overlay.propTypes = {
     onClick: PropTypes.func.isRequired,
-    children: PropTypes.node
+    children: PropTypes.node,
+    closeModalKeyDown:PropTypes.func.isRequired
 }

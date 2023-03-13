@@ -59,7 +59,7 @@ export class App extends React.Component {
   }
   closeModal = (event) => {
     if (event.target.classList.contains("overlay")) {
-      this.setState({ modalImage: "", tags: "" });
+      this.closeModalKeyDown();
     }
   }
   closeModalKeyDown = () => {
