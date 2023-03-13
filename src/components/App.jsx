@@ -15,67 +15,39 @@ export class App extends React.Component {
     modalImage: '',
     page: 1,
     isVisible: false,
-    totalHits: 0,
     tags: '',
     isLoading: false
   }
 
   async componentDidUpdate(_, prevState) {
 
-    if (prevState.keyWords !== this.state.keyWords) {
-      this.setState({ isLoading: true, images: [], isVisible: false })
+    if (prevState.keyWords !== this.state.keyWords || this.state.page !== prevState.page) {
+      this.setState({ isLoading: true });
       try {
-        let images = await getPhoto(this.state.keyWords, 1);
-        const totalHits = images.totalHits;
-        if (totalHits > 12) {
-          images = images.hits;
-          this.setState({ images, page: 1, isVisible: true, totalHits: Math.ceil(totalHits / 12) });
-        }
-        else {
-          images = images.hits;
-          this.setState({ images, page: 1, isVisible: false, totalHits: Math.ceil(totalHits / 12) });
-        }
+        let newImages = await getPhoto(this.state.keyWords, this.state.page);
+        this.setState((prev) => {
+          return {
+            images: [...prev.images, ...newImages.hits], isVisible: this.state.page < Math.ceil(newImages.totalHits / 12)
+          }
+        })
       }
-      catch (err) {
-        Notify.info(err.message);
+      catch (error) {
+        Notify.info(error.message);
       }
       finally {
         this.setState({ isLoading: false });
-        return;
+        if (this.state.page !== prevState.page)
+          setTimeout(() => {
+            window.scrollBy({
+              top: window.innerHeight,
+              behavior: "smooth"
+            });
+          }, 5)
       }
-
-
     }
-    if (this.state.page !== prevState.page && this.state.page !== 1) {
-      this.setState({ isLoading: true })
-      try {
-        if (this.state.page > this.state.totalHits) {
-          this.setState({ isVisible: false });
-        }
-        else if (this.state.page === this.state.totalHits) {
-          let images = (await getPhoto(this.state.keyWords, this.state.page)).hits;
-          images = [...this.state.images, ...images];
-          this.setState({ images, isVisible: false });
-        }
-        else {
-          let images = (await getPhoto(this.state.keyWords, this.state.page)).hits;
-          images = [...this.state.images, ...images];
-          this.setState({
-            images, isVisible: true
-          });
-
-        }
-      } catch (err) {
-        console.log(err)
-      }
-      finally {
-        this.setState({ isLoading: false });
-
-      }
-
-    }
-
   }
+
+
   onLoadMore = () => {
     this.setState({ page: this.state.page + 1, isVisible: false });
 
@@ -93,16 +65,16 @@ export class App extends React.Component {
   closeModalKeyDown = () => {
     this.setState({ modalImage: "", tags: "" });
   }
-  setKeyWords = (event) => {
-    event.preventDefault();
-    if (event.currentTarget.elements.searchQuery.value !== "") {
-      this.setState({ keyWords: event.currentTarget.elements.searchQuery.value });
+  setKeyWords = (keyWords) => {
+    if (keyWords === "" || keyWords === this.state.keyWords) {
+      return;
     }
+    this.setState({ keyWords, page: 1, images: [], isVisible: false });
   }
   render() {
     return (
       <AppStyled >
-        <Searchbar onSubmit={this.setKeyWords} />
+        <Searchbar setKeyWords={this.setKeyWords} />
         <ImageGallery photos={this.state.images} onClick={this.openModal} />
         {this.state.modalImage !== "" &&
           <Overlay onClick={this.closeModal} closeModalKeyDown={this.closeModalKeyDown}>

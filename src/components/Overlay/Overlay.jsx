@@ -1,5 +1,6 @@
 import { OverlayStyled } from "./Overlay.styled";
 import React from "react";
+import PropTypes from "prop-types";
 
 export class Overlay extends React.Component {
     onKeyDownHandle = (event) => {
@@ -21,4 +22,8 @@ export class Overlay extends React.Component {
     );
     }
    
+}
+Overlay.propTypes = {
+    onClick: PropTypes.func.isRequired,
+    children: PropTypes.node
 }

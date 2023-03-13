@@ -1,5 +1,6 @@
 import React from "react";
 import { ImageGalleryItemStyled } from "./ImageGalleryItem.styled";
+import PropTypes from "prop-types";
 export function ImageGalleryItem(props) {
     return (
         <ImageGalleryItemStyled>
@@ -7,4 +8,9 @@ export function ImageGalleryItem(props) {
         </ImageGalleryItemStyled>
        
     );
+}
+ImageGalleryItem.propTypes = {
+    url: PropTypes.string.isRequired,
+    tags: PropTypes.string.isRequired,
+    modalImg:PropTypes.string.isRequired,
 }
