@@ -53,16 +53,9 @@ export class App extends React.Component {
 
   }
   openModal = (event) => {
-    if (event.target.tagName === 'IMG') {
-      this.setState({ modalImage: event.target.dataset.img, tags: event.target.alt })
-    }
+    this.setState({ modalImage: event.target.dataset.img, tags: event.target.alt })
   }
-  closeModal = (event) => {
-    if (event.target.classList.contains("overlay")) {
-      this.closeModalKeyDown();
-    }
-  }
-  closeModalKeyDown = () => {
+  closeModal = () => {
     this.setState({ modalImage: "", tags: "" });
   }
   setKeyWords = (keyWords) => {
@@ -75,9 +68,9 @@ export class App extends React.Component {
     return (
       <AppStyled >
         <Searchbar setKeyWords={this.setKeyWords} />
-        <ImageGallery photos={this.state.images} onClick={this.openModal} />
+        <ImageGallery photos={this.state.images} openModal={this.openModal} />
         {this.state.modalImage !== "" &&
-          <Overlay onClick={this.closeModal} closeModalKeyDown={this.closeModalKeyDown}>
+          <Overlay closeModal={this.closeModal}>
             <Modal modalImage={this.state.modalImage} tags={this.state.tags} />
           </Overlay>}
         {this.state.isVisible && <Button onLoadMore={this.onLoadMore} />}

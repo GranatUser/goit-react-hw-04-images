@@ -5,7 +5,12 @@ import PropTypes from "prop-types";
 export class Overlay extends React.Component {
     onKeyDownHandle = (event) => {
         if (event.code === "Escape") {
-            this.props.closeModalKeyDown();
+            this.props.closeModal();
+        }
+    }
+    onClickOverlay = (event) => {
+        if (event.target.tagName !== "IMG") {
+            this.props.closeModal();
         }
     }
     componentDidMount() {
@@ -16,7 +21,7 @@ export class Overlay extends React.Component {
     }
     render() {
          return (
-        <OverlayStyled className="overlay" onClick={this.props.onClick}>
+        <OverlayStyled className="overlay" onClick={this.onClickOverlay}>
             {this.props.children}
          </OverlayStyled>
     );
@@ -24,7 +29,6 @@ export class Overlay extends React.Component {
    
 }
 Overlay.propTypes = {
-    onClick: PropTypes.func.isRequired,
-    children: PropTypes.node,
-    closeModalKeyDown:PropTypes.func.isRequired
+    closeModal: PropTypes.func.isRequired,
+    children: PropTypes.node
 }
