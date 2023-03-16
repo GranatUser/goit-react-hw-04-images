@@ -72,10 +72,11 @@ export function App() {
     if (keyWordsArg === "" || keyWordsArg === keyWords) {
       return;
     }
-    setKeyWords(keyWordsArg);
-    setPage(1);
+
     setImages([]);
     setIsVisible(false);
+    setKeyWords(keyWordsArg);
+    setPage(1);
   }
 
   return (
