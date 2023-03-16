@@ -3,9 +3,9 @@ import styled from "styled-components";
 export const ModalStyled = styled.div`
 
  
- animation-name: modalOpenAnim;
+  animation-name: modalOpenAnim;
   animation-duration: 250ms;
-
+  cursor:default;
   @keyframes modalOpenAnim {
   0% {
       transform:scale(0);

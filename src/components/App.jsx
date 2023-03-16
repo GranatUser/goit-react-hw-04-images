@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Searchbar } from "./Searchbar/searchbar";
 import { AppStyled } from './App.Styled'
 import { ImageGallery } from "./ImageGallery/imageGallery";
@@ -8,74 +8,87 @@ import { Overlay } from "./Overlay/Overlay";
 import { Button } from "./Button/Button";
 import { Loader } from "./Loader/Loader";
 import { Notify } from "notiflix";
-export class App extends React.Component {
-  state = {
-    images: [],
-    keyWords: '',
-    modalImage: '',
-    page: 1,
-    isVisible: false,
-    tags: '',
-    isLoading: false
-  }
+export function App() {
 
-  async componentDidUpdate(_, prevState) {
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [keyWords, setKeyWords] = useState('');
+  const [modalImage, setModalImage] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
+  const [tags, setTags] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-    if (prevState.keyWords !== this.state.keyWords || this.state.page !== prevState.page) {
-      this.setState({ isLoading: true });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        let newImages = await getPhoto(this.state.keyWords, this.state.page);
-        this.setState((prev) => {
-          return {
-            images: [...prev.images, ...newImages.hits], isVisible: this.state.page < Math.ceil(newImages.totalHits / 12)
-          }
-        })
+        const newImages = await getPhoto(keyWords, page);
+        setImages((prevImages) =>
+          [...prevImages, ...newImages.hits]
+        );
+        setIsVisible(page < Math.ceil(newImages.totalHits / 12));
       }
       catch (error) {
         Notify.info(error.message);
       }
       finally {
-        this.setState({ isLoading: false });
-        if (this.state.page !== prevState.page)
+        setIsLoading(false);
+        if (page !== 1) {
           setTimeout(() => {
             window.scrollBy({
               top: window.innerHeight,
               behavior: "smooth"
             });
           }, 5)
+        }
       }
     }
-  }
 
 
-  onLoadMore = () => {
-    this.setState({ page: this.state.page + 1, isVisible: false });
+    if (keyWords === "") return;
+    fetchData();
 
+
+  }, [page, keyWords])
+
+
+  const onLoadMore = () => {
+    setPage(page => page + 1);
+    setIsVisible(false);
   }
-  openModal = (event) => {
-    this.setState({ modalImage: event.target.dataset.img, tags: event.target.alt })
+
+  const openModal = (event) => {
+    setModalImage(event.target.dataset.img);
+    setTags(event.target.alt);
   }
-  closeModal = () => {
-    this.setState({ modalImage: "", tags: "" });
+
+  const closeModal = () => {
+    setModalImage("");
+    setTags("");
   }
-  setKeyWords = (keyWords) => {
-    if (keyWords === "" || keyWords === this.state.keyWords) {
+
+  const checkKeyWords = (keyWordsArg) => {
+    if (keyWordsArg === "" || keyWordsArg === keyWords) {
       return;
     }
-    this.setState({ keyWords, page: 1, images: [], isVisible: false });
+    setKeyWords(keyWordsArg);
+    setPage(1);
+    setImages([]);
+    setIsVisible(false);
   }
-  render() {
-    return (
-      <AppStyled >
-        <Searchbar setKeyWords={this.setKeyWords} />
-        <ImageGallery photos={this.state.images} openModal={this.openModal} />
-        {this.state.modalImage !== "" &&
-          <Overlay closeModal={this.closeModal}>
-            <Modal modalImage={this.state.modalImage} tags={this.state.tags} />
-          </Overlay>}
-        {this.state.isVisible && <Button onLoadMore={this.onLoadMore} />}
-        {this.state.isLoading && <Loader />}
-      </AppStyled>
-    );
-  }
+
+  return (
+    <AppStyled >
+      <Searchbar setKeyWords={checkKeyWords} />
+      <ImageGallery photos={images} openModal={openModal} />
+      {modalImage !== "" &&
+        <Overlay closeModal={closeModal}>
+          <Modal modalImage={modalImage} tags={tags} />
+        </Overlay>}
+      {isVisible && <Button onLoadMore={onLoadMore} />}
+      {isLoading && <Loader />}
+    </AppStyled>
+  );
+
 }

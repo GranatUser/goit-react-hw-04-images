@@ -1,32 +1,33 @@
 import { OverlayStyled } from "./Overlay.styled";
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 
-export class Overlay extends React.Component {
-    onKeyDownHandle = (event) => {
-        if (event.code === "Escape") {
-            this.props.closeModal();
-        }
-    }
-    onClickOverlay = (event) => {
+export function Overlay(props) {
+
+    const onClickOverlay = (event) => {
         if (event.target.tagName !== "IMG") {
-            this.props.closeModal();
+            props.closeModal();
         }
     }
-    componentDidMount() {
-        window.addEventListener("keydown",this.onKeyDownHandle)
-    }
-    componentWillUnmount() {
-        window.removeEventListener("keydown", this.onKeyDownHandle);
-    }
-    render() {
-         return (
-        <OverlayStyled className="overlay" onClick={this.onClickOverlay}>
-            {this.props.children}
-         </OverlayStyled>
+    useEffect(() => {
+        const onKeyDownHandle = (event) => {
+            if (event.code === "Escape") {
+                props.closeModal();
+            }
+        }
+        window.addEventListener("keydown", onKeyDownHandle);
+        return () => {
+            window.removeEventListener("keydown", onKeyDownHandle);
+        }
+    }, [props])
+
+    return (
+        <OverlayStyled className="overlay" onClick={onClickOverlay}>
+            {props.children}
+        </OverlayStyled>
     );
-    }
-   
+
+
 }
 Overlay.propTypes = {
     closeModal: PropTypes.func.isRequired,
